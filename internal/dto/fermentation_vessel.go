@@ -34,9 +34,13 @@ func (r *UpdateFermentationVesselRequest) Normalize() {
 	r.Name = trimPointer(r.Name)
 	r.Location = trimPointer(r.Location)
 	r.OwnerTeam = trimPointer(r.OwnerTeam)
-	channels := normalizeStrings(*r.SensorChannels)
-	r.SensorChannels = &channels
-	r.CommissionedAt = normalizeCommissionedAt(r.CommissionedAt)
+	if r.SensorChannels != nil {
+		channels := normalizeStrings(*r.SensorChannels)
+		r.SensorChannels = &channels
+	}
+	if r.CommissionedAt != nil {
+		r.CommissionedAt = normalizeCommissionedAt(r.CommissionedAt)
+	}
 }
 type FermentationVesselQuery struct {
 	Search, Location, OwnerTeam, State string
@@ -73,6 +77,9 @@ func NewFermentationVesselResponse(v model.FermentationVessel, summary model.Fer
 	}
 }
 func normalizeCommissionedAt(value *time.Time) *time.Time {
+	if value == nil {
+		return nil
+	}
 	copied := *value
 	return &copied
 }
@@ -95,6 +102,9 @@ func normalizeStrings(values []string) []string {
 	return result
 }
 func trimPointer(value *string) *string {
+	if value == nil {
+		return nil
+	}
 	trimmed := strings.TrimSpace(*value)
 	return &trimmed
 }

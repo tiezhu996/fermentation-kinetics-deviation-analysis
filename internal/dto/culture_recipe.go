@@ -27,10 +27,14 @@ type UpdateCultureRecipeRequest struct {
 	ToleranceProfileJSON *json.RawMessage `json:"tolerance_profile_json"`
 }
 func (r *UpdateCultureRecipeRequest) Normalize() {
-	organism := strings.TrimSpace(*r.Organism)
-	r.Organism = &organism
-	duration := *r.TargetDurationH
-	r.TargetDurationH = &duration
+	if r.Organism != nil {
+		organism := strings.TrimSpace(*r.Organism)
+		r.Organism = &organism
+	}
+	if r.TargetDurationH != nil {
+		duration := *r.TargetDurationH
+		r.TargetDurationH = &duration
+	}
 }
 type CultureRecipeTransitionRequest struct {
 	ToState string `json:"to_state" binding:"required,oneof=draft validated published obsolete"`
