@@ -13,7 +13,7 @@ type FermentationVesselRepository interface {
 	GetByID(context.Context, uint) (model.FermentationVessel, error)
 	GetByCode(context.Context, string) (model.FermentationVessel, error)
 	List(context.Context, dto.FermentationVesselQuery) ([]model.FermentationVessel, int64, error)
-	Update(context.Context, *model.FermentationVessel) error
+	Update(context.Context, *model.FermentationVessel) (bool, error)
 	Deactivate(context.Context, uint) (bool, error)
 	Summary(context.Context, uint) (model.FermentationVesselSummary, error)
 }
@@ -67,17 +67,19 @@ func (r *fermentationVesselRepository) List(ctx context.Context, query dto.Ferme
 	}
 	return vessels, total, nil
 }
-func (r *fermentationVesselRepository) Update(ctx context.Context, vessel *model.FermentationVessel) error {
-	result := r.db.WithContext(ctx).Model(&model.FermentationVessel{}).Where("id = ?", vessel.ID).Updates(map[string]any{
-		"name": vessel.Name, "working_volume_l": vessel.WorkingVolumeL,
-		"sensor_channels": vessel.SensorChannels, "location": vessel.Location,
-		"owner_team": vessel.OwnerTeam, "commissioned_at": vessel.CommissionedAt,
-		"updated_at": vessel.UpdatedAt,
-	})
+func (r *fermentationVesselRepository) Update(ctx context.Context, vessel *model.FermentationVessel) (bool, error) {
+	result := r.db.WithContext(ctx).Model(&model.FermentationVessel{}).
+		Where("id = ? AND vessel_state = ?", vessel.ID, "active").
+		Updates(map[string]any{
+			"name": vessel.Name, "working_volume_l": vessel.WorkingVolumeL,
+			"sensor_channels": vessel.SensorChannels, "location": vessel.Location,
+			"owner_team": vessel.OwnerTeam, "commissioned_at": vessel.CommissionedAt,
+			"updated_at": vessel.UpdatedAt,
+		})
 	if result.Error != nil {
-		return fmt.Errorf("update fermentation vessel %d: %w", vessel.ID, result.Error)
+		return false, fmt.Errorf("update fermentation vessel %d: %w", vessel.ID, result.Error)
 	}
-	return nil
+	return result.RowsAffected == 1, nil
 }
 func (r *fermentationVesselRepository) Deactivate(ctx context.Context, id uint) (bool, error) {
 	result := r.db.WithContext(ctx).Model(&model.FermentationVessel{}).

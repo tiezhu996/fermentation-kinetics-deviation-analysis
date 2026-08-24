@@ -87,6 +87,9 @@ func (s *FermentationVesselService) Update(
 		}
 		return dto.FermentationVesselResponse{}, util.WrapError(http.StatusInternalServerError, util.CodeInternal, "unable to load fermentation vessel", err)
 	}
+	if !vessel.Active() {
+		return dto.FermentationVesselResponse{}, util.NewError(http.StatusConflict, util.CodeStateTransition, "fermentation vessel is inactive and cannot be updated")
+	}
 	before := vessel
 	if request.Name != nil {
 		vessel.Name = *request.Name
@@ -111,8 +114,12 @@ func (s *FermentationVesselService) Update(
 		vessel.CommissionedAt = request.CommissionedAt.UTC()
 	}
 	vessel.UpdatedAt = s.now()
-	if err := s.vessels.Update(ctx, &vessel); err != nil {
+	changed, err := s.vessels.Update(ctx, &vessel)
+	if err != nil {
 		return dto.FermentationVesselResponse{}, util.WrapError(http.StatusInternalServerError, util.CodeInternal, "unable to update fermentation vessel", err)
+	}
+	if !changed {
+		return dto.FermentationVesselResponse{}, util.NewError(http.StatusConflict, util.CodeConflict, "fermentation vessel was deactivated concurrently")
 	}
 	if err := recordAudit(ctx, s.audits, actor, "fermentation_vessel", vessel.ID, "update", before, vessel, "", "", 0); err != nil {
 		return dto.FermentationVesselResponse{}, err

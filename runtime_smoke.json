@@ -9,6 +9,9 @@
     "JWT_SECRET": "runtime-smoke-only-change-me"
   },
   "ready_url": "http://127.0.0.1:20534/healthz",
-  "ready_status": [200],
-  "startup_timeout": 30
+  "ready_status": [
+    200
+  ],
+  "startup_timeout": 30,
+  "project_intro": "基于 Go 实现的发酵动力学偏差分析Web项目，一款后端服务，完成发酵罐管理、培养配方管理、传感器时序导入与阶段约束DTW偏差分析。"
 }
