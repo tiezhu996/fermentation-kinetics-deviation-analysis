@@ -63,10 +63,6 @@ func (s *SensorSeriesService) Import(
 	if err != nil {
 		return dto.SensorSeriesResponse{}, util.WrapError(http.StatusUnprocessableEntity, util.CodeValidation, "time series format is invalid", err)
 	}
-	sharedValues := points[0].Values
-	for i := range points {
-		points[i].Values = sharedValues
-	}
 	canonical, err := timeseries.EncodePoints(points)
 	if err != nil {
 		return dto.SensorSeriesResponse{}, util.WrapError(http.StatusInternalServerError, util.CodeInternal, "unable to canonicalize time series", err)
@@ -138,10 +134,6 @@ func (s *SensorSeriesService) Transition(
 		if validateErr != nil {
 			return s.rejectAfterValidation(ctx, series, before, actor, validateErr.Error())
 		}
-		sharedValues := points[0].Values
-		for i := range points {
-			points[i].Values = sharedValues
-		}
 		pointsJSON, err = timeseries.EncodePoints(points)
 		if err != nil {
 			return dto.SensorSeriesResponse{}, util.WrapError(http.StatusInternalServerError, util.CodeInternal, "unable to canonicalize validated series", err)
@@ -159,10 +151,6 @@ func (s *SensorSeriesService) Transition(
 		points, decodeErr := timeseries.DecodePoints(series.PointsJSON)
 		if decodeErr != nil {
 			return dto.SensorSeriesResponse{}, util.WrapError(http.StatusUnprocessableEntity, util.CodeValidation, "validated series cannot be decoded", decodeErr)
-		}
-		sharedValues := points[0].Values
-		for i := range points {
-			points[i].Values = sharedValues
 		}
 		_, normalization, normalizeErr := timeseries.Normalize(points)
 		if normalizeErr != nil {

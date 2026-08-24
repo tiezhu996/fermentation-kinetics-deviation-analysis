@@ -41,12 +41,15 @@ func Validate(raw []byte, primaryChannel string, sampleIntervalSeconds int) ([]P
 	primaryChannel = strings.ToLower(strings.TrimSpace(primaryChannel))
 	latest := make(map[int64]Point, len(input))
 	channels := make(map[string]struct{})
-	values := make(map[string]*float64, len(input)+1)
 	for index, rawPoint := range input {
 		timestamp, err := time.Parse(time.RFC3339Nano, strings.TrimSpace(rawPoint.Timestamp))
 		if err != nil {
 			return nil, QualitySummary{}, fmt.Errorf("point %d timestamp must use RFC3339: %w", index, err)
 		}
+		// Each point owns its own values map; sharing one across iterations
+		// would make every point reference the same map, so later writes
+		// silently overwrite earlier observations and corrupt the series.
+		values := make(map[string]*float64, len(rawPoint.Values)+1)
 		for channel, value := range rawPoint.Values {
 			channel = strings.ToLower(strings.TrimSpace(channel))
 			if channel == "" {
