@@ -109,8 +109,9 @@ func (r *RateLimiter) Middleware(scope string) gin.HandlerFunc {
 			key = scope + ":" + actor.Username
 		}
 		now := time.Now()
-		if !r.allow(key, now) {
-			retryAfter := int(time.Minute.Seconds() - now.Sub(r.windows[key].start).Seconds())
+		allowed, resetIn := r.allow(key, now)
+		if !allowed {
+			retryAfter := int(resetIn.Seconds())
 			if retryAfter < 1 {
 				retryAfter = 1
 			}
