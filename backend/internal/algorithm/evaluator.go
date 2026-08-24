@@ -173,7 +173,7 @@ func (e *Evaluator) Evaluate(snapshot Snapshot) (Result, error) {
 			return Result{}, phaseErr
 		}
 		evidence = append(evidence, phaseEvidence)
-		aligned = append(phaseAligned, aligned...)
+		aligned = append(aligned, phaseAligned...)
 		for key, cause := range phaseCauses {
 			causes[key] = cause
 		}
@@ -290,12 +290,12 @@ func evaluatePhase(
 		for _, pair := range path {
 			aligned = append(aligned, AlignedPoint{
 				Phase: string(boundary.Phase), Channel: channel,
-				ActualElapsedHour: round6(actualTimes[pair.ReferenceIndex]), ActualValue: round6(actualValues[pair.ReferenceIndex]),
-				ReferenceElapsedHour: round6(referenceTimes[pair.ActualIndex]), ReferenceValue: round6(referenceValues[pair.ActualIndex]),
+				ActualElapsedHour: round6(actualTimes[pair.ActualIndex]), ActualValue: round6(actualValues[pair.ActualIndex]),
+				ReferenceElapsedHour: round6(referenceTimes[pair.ReferenceIndex]), ReferenceValue: round6(referenceValues[pair.ReferenceIndex]),
 			})
 		}
 		if channelScore >= 0.40 {
-			direction := mean(referenceScaled) - mean(actualScaled)
+			direction := mean(actualScaled) - mean(referenceScaled)
 			causes[channel] = causeFor(channel, direction, boundary.Phase)
 		}
 	}

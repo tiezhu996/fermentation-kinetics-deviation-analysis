@@ -65,7 +65,7 @@ func DTW(actual, reference []float64, window int) (float64, []AlignmentPair, err
 	}
 	path := make([]AlignmentPair, len(reversed))
 	for index := range reversed {
-		path[index] = reversed[index]
+		path[index] = reversed[len(reversed)-1-index]
 	}
 	return cost[len(actual)][len(reference)] / float64(len(path)), path, nil
 }
