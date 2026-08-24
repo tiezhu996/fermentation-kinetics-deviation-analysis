@@ -71,7 +71,7 @@ func (s *CultureRecipeService) Create(
 func (s *CultureRecipeService) Get(ctx context.Context, id uint) (dto.CultureRecipeResponse, error) {
 	recipe, err := s.recipes.GetByID(ctx, id, true)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return dto.CultureRecipeResponse{}, util.NotFound("culture recipe")
 		}
 		return dto.CultureRecipeResponse{}, util.WrapError(http.StatusInternalServerError, util.CodeInternal, "unable to load culture recipe", err)
@@ -97,7 +97,7 @@ func (s *CultureRecipeService) Update(
 	request.Normalize()
 	recipe, err := s.recipes.GetByID(ctx, id, false)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return dto.CultureRecipeResponse{}, util.NotFound("culture recipe")
 		}
 		return dto.CultureRecipeResponse{}, util.WrapError(http.StatusInternalServerError, util.CodeInternal, "unable to load culture recipe", err)
@@ -148,7 +148,7 @@ func (s *CultureRecipeService) Transition(
 ) (dto.CultureRecipeResponse, error) {
 	recipe, err := s.recipes.GetByID(ctx, id, false)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return dto.CultureRecipeResponse{}, util.NotFound("culture recipe")
 		}
 		return dto.CultureRecipeResponse{}, util.WrapError(http.StatusInternalServerError, util.CodeInternal, "unable to load culture recipe", err)
@@ -190,7 +190,7 @@ func (s *CultureRecipeService) Copy(
 ) (dto.CultureRecipeResponse, error) {
 	source, err := s.recipes.GetByID(ctx, id, false)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return dto.CultureRecipeResponse{}, util.NotFound("culture recipe")
 		}
 		return dto.CultureRecipeResponse{}, util.WrapError(http.StatusInternalServerError, util.CodeInternal, "unable to load source recipe", err)

@@ -29,10 +29,6 @@ func (h *CultureRecipeHandler) Get(c *gin.Context) {
 		return
 	}
 	result, serviceErr := h.service.Get(c.Request.Context(), id)
-	if serviceErr != nil {
-		util.Fail(c, util.NewError(http.StatusInternalServerError, util.CodeInternal, "unable to load culture recipe"))
-		return
-	}
 	respond(c, http.StatusOK, result, serviceErr)
 }
 func (h *CultureRecipeHandler) Create(c *gin.Context) {

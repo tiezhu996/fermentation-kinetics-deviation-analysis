@@ -33,7 +33,7 @@ func (r *cultureRecipeRepository) GetByID(ctx context.Context, id uint, preload 
 		query = query.Preload("Vessel")
 	}
 	if err := query.First(&recipe, id).Error; err != nil {
-		return model.CultureRecipe{}, fmt.Errorf("find culture recipe %d: %v", id, err)
+		return model.CultureRecipe{}, fmt.Errorf("find culture recipe %d: %w", id, err)
 	}
 	return recipe, nil
 }
